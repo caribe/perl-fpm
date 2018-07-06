@@ -28,6 +28,8 @@ GetOptions(
 
 my %connections;
 
+my %env;
+
 require $startup if $startup;
 
 my $pm = FCGI::ProcManager->new({ n_processes => $processes });
@@ -43,7 +45,7 @@ while ($request->Accept() >= 0) {
 	CGI->_reset_globals;
 	my $q = CGI->new();
 
-	local @ARGV = ($q);
+	local @ARGV = ($q, \%env);
 	unless (my $return = do $ENV{DOCUMENT_ROOT}.$ENV{DOCUMENT_URI}) {
 		if ($@) {
 			print $q->header('text/plain ', '500 Internal Server Error');
@@ -69,6 +71,7 @@ while ($request->Accept() >= 0) {
 }
 
 FCGI::CloseSocket($socket);
+
 
 __END__
 
